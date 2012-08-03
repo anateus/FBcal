@@ -19,6 +19,7 @@ DEFAULT_TIMEZONE = "America/Los_Angeles"
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 app = Flask(__name__)
+app.debug = True
 if env:
     redis = redis_from_url(env["DOTCLOUD_DATA_REDIS_LOGIN"]) 
 else:
