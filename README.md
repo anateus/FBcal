@@ -12,8 +12,8 @@ Then you can stick ```/cal/<whatevername>.ics``` in your calendar software. Soon
 
 ## Requirements
 
-Well, you can look in the requirements.txt file, but basically, this is written in Python using the Flask web framework and utilizing Redis as the datastore.
+Well, you can look in the [requirements.txt](https://github.com/anateus/FBcal/blob/master/requirements.txt) file for exact details, but basically, this is written in Python using the [Flask](http://flask.pocoo.org/) web framework and [Redis](http://redis.io/) as the datastore.
 
 ## Deployment
 
-Currently it's set up to be deployed unto dotcloud, but should be easily adjustable to run anywhere wsgi is spoken.
+Currently it's set up to be deployed unto [dotCloud](http://www.dotcloud.com) (which I love), but should be easily adjustable to run anywhere WSGI is spoken.
