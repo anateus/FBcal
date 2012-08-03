@@ -20,8 +20,7 @@ DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 app = Flask(__name__)
 if env:
-    #redis = Redis(host=env["DOTCLOUD_CALENDRICS_REDIS_HOST"],port=env['DOTCLOUD_CALENDARICS_REDIS_PORT'],password=env["DOTCLOUD_CALENDARICS_REDIS_PASSWORD"],)
-    redis = redis_from_url(env["DOTCLOUD_CALENDARICS_REDIS_URL"]) 
+    redis = redis_from_url(env["DOTCLOUD_DATA_REDIS_LOGIN"]) 
 else:
     redis = Redis()
 
