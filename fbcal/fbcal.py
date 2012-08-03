@@ -1,12 +1,19 @@
+from flask import Flask, request, session, Response, render_template, json, jsonify
+
 import requests
-import json
 import icalendar
 from datetime import datetime
 import pytz
+from redis import Redis
+
+from local_vars import *
 
 BASE = "https://graph.facebook.com/%s"
 DEFAULT_TIMEZONE = "America/Los_Angeles"
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
+
+app = Flask(__name__)
+redis = Redis()
 
 def get_events(access_token=ACCESS_TOKEN,limit=50):
     response = requests.get(BASE%'me/events?limit=%(limit)s&access_token=%(access_token)s'%locals())
@@ -35,14 +42,61 @@ def prepare_calendar():
     cal.add('calscale','gregorian')
     return cal
 
+def generate_ics(events):
+    calendar = prepare_calendar()
+    for event in events:
+        calendar.add_component(parse_event(event))
+    return calendar.to_ical()
+
 
     
+@app.route('/')
+def index():
+    return 'Good News Everyone!'
+
+def get_cached_calendar(calid):
+    return redis.get('cached_cal_%s'%calid)
+
+def set_cached_calendar(calid,ics,expiration = 15*60*60):
+    return redis.setex('cached_cal_%s'%calid,ics,expiration)
+
+def get_access_token(calid):
+    return redis.get('access_token_%s'%calid)
+
+@app.route('/cal/<calid>.ics')
+def get_cal(calid):
+    # TODO: sanitize calid
+    # see if we have a cached calendar for this id
+    cached_calendar = get_cached_calendar(calid)
+    if cached_calendar:
+        return cached_calendar
+    else:
+        # if we don't, see if we have an access token for this id
+        access_token = get_access_token(calid)
+        if access_token:
+            # if we have an access token grab new events, parse and cache them!
+            events_response = get_events(access_token=access_token)
+            if events_response.has_key('error') or not events_response.has_key('data'):
+                resp = jsonify(status = 403, message = 'Invalid access token')
+                resp.status_code = 403
+                return resp
+            else:
+                events = events_response['data']
+                ics = generate_ics(events)
+                set_cached_calendar(calid,ics)
+                return Response(ics, status=200, mimetype='text/calendar')
+        else: # if we don't have a cache or a token... we don't have anything on that calid!
+            resp = jsonify(status = 404, message = "Don't know about that calendar")
+            resp.status_code = 404
+            return resp
 
 if __name__=="__main__":
+    app.run(debug=True)
+    comment = """
     events = get_events()['data']
     import pprint
     calendar = prepare_calendar()
     for event in events:
         calendar.add_component(parse_event(event))
-    open('output.ics','w').write(calendar.to_ical())
+    open('output.ics','w').write(calendar.to_ical())"""
 
