@@ -4,7 +4,15 @@ import requests
 import icalendar
 from datetime import datetime
 import pytz
+import os
 from redis import Redis
+from redis import from_url as redis_from_url
+
+if os.path.exists('/home/dotcloud/environment.json'):
+    with open('/home/dotcloud/environment.json') as f:
+        env = json.load(f)
+else:
+    env = None
 
 from local_vars import *
 
@@ -13,7 +21,11 @@ DEFAULT_TIMEZONE = "America/Los_Angeles"
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 app = Flask(__name__)
-redis = Redis()
+if env:
+    #redis = Redis(host=env["DOTCLOUD_CALENDRICS_REDIS_HOST"],port=env['DOTCLOUD_CALENDARICS_REDIS_PORT'],password=env["DOTCLOUD_CALENDARICS_REDIS_PASSWORD"],)
+    redis = redis_from_url(env["DOTCLOUD_CALENDRICS_REDIS_URL"]) 
+else:
+    redis = Redis()
 
 def get_events(access_token=ACCESS_TOKEN,limit=50):
     response = requests.get(BASE%'me/events?limit=%(limit)s&access_token=%(access_token)s'%locals())
