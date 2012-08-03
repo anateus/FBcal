@@ -73,6 +73,9 @@ def set_cached_calendar(calid,ics,expiration = 15*60*60):
 def get_access_token(calid):
     return redis.get('access_token_%s'%calid)
 
+def set_access_token(calid,access_token,expiration = 120*60*60):
+    return redis.setex('access_token_%s'%calid,access_token,expiration)
+
 @app.route('/cal/<calid>.ics')
 def get_cal(calid):
     # TODO: sanitize calid
@@ -82,7 +85,11 @@ def get_cal(calid):
         return Response(cached_calendar, status=200, mimetype='text/calendar')
     else:
         # if we don't, see if we have an access token for this id
-        access_token = request.args.get('access_token',get_access_token(calid))
+        access_token = request.args.get('access_token')
+        if access_token:
+            set_access_token(calid,access_token)
+        else:
+            access_token = get_access_token(calid)
         if access_token:
             # if we have an access token grab new events, parse and cache them!
             events_response = get_events(access_token=access_token)
