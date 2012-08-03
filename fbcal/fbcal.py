@@ -79,10 +79,10 @@ def get_cal(calid):
     # see if we have a cached calendar for this id
     cached_calendar = get_cached_calendar(calid)
     if cached_calendar:
-        return cached_calendar
+        return Response(cached_calendar, status=200, mimetype='text/calendar')
     else:
         # if we don't, see if we have an access token for this id
-        access_token = get_access_token(calid)
+        access_token = request.args.get('access_token',get_access_token(calid))
         if access_token:
             # if we have an access token grab new events, parse and cache them!
             events_response = get_events(access_token=access_token)
