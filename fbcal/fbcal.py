@@ -14,8 +14,6 @@ if os.path.exists('/home/dotcloud/environment.json'):
 else:
     env = None
 
-from local_vars import *
-
 BASE = "https://graph.facebook.com/%s"
 DEFAULT_TIMEZONE = "America/Los_Angeles"
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
@@ -27,7 +25,7 @@ if env:
 else:
     redis = Redis()
 
-def get_events(access_token=ACCESS_TOKEN,limit=50):
+def get_events(access_token,limit=50):
     response = requests.get(BASE%'me/events?limit=%(limit)s&access_token=%(access_token)s'%locals())
     return json.loads(response.text)
 
