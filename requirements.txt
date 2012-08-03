@@ -6,3 +6,4 @@ python-dateutil==2.1
 requests==0.13.3
 pytz==2012d
 icalendar==3.0.1b2
+redis==2.6.0
