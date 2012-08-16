@@ -65,16 +65,16 @@ def index():
     return 'Good News Everyone!'
 
 def get_cached_calendar(calid):
-    return redis.get('cached_cal_%s'%calid)
+    return redis.get('cached_cal:%s'%calid)
 
 def set_cached_calendar(calid,ics,expiration = 15*60*60):
-    return redis.setex('cached_cal_%s'%calid,ics,expiration)
+    return redis.setex('cached_cal:%s'%calid,ics,expiration)
 
 def get_access_token(calid):
-    return redis.get('access_token_%s'%calid)
+    return redis.get('access_token:%s'%calid)
 
 def set_access_token(calid,access_token,expiration = 120*60*60):
-    return redis.setex('access_token_%s'%calid,access_token,expiration)
+    return redis.setex('access_token:%s'%calid,access_token,expiration)
 
 @app.route('/cal/<calid>.ics')
 def get_cal(calid):
